@@ -13,6 +13,8 @@
 	import blank from "$lib/assets/blank-profile.jpg";
 	import { applyAction, enhance } from "$app/forms";
 	import { goto } from "$app/navigation";
+	import { CheckCircleSolid } from "flowbite-svelte-icons";
+	import { writable } from "svelte/store";
 
 	let countries = [
 		{ value: "KONTRAK", name: "Kontrak" },
@@ -21,6 +23,7 @@
 	];
 
 	let selected: "KONTRAK" | "TETAP" | "PROBATION" = "KONTRAK";
+   let addSuccess = writable(false)
 
 	let fileuploadprops = {
 		id: "user_avatar",
@@ -43,13 +46,6 @@
 		}
 	}
 
-	function enforceNumeric(event: Event) {
-		if (event.target instanceof HTMLInputElement) {
-			const input = event.target;
-			input.value = input.value.replace(/[^0-9]/g, "");
-		}
-	}
-
 	export let form: {
 		error?: boolean;
 		message: string;
@@ -64,9 +60,15 @@
 </script>
 
 <div class="p-10">
+   {#if $addSuccess}
+   <Card size="none" class='min-h-[80vh] flex flex-col items-center justify-center space-y-10'>
+      <h1 class="text-5xl font-bold text-black">Form Terkirim</h1>
+      <CheckCircleSolid color='green' class='w-60 h-60' />
+   </Card>
+   {:else}
 	<Card size="none">
 		{#if form?.error}
-			<p class="error">{form.message}</p>
+			<p class="color">{form.message}</p>
 		{/if}
 		<form
 			action="?/submitEmployee"
@@ -77,6 +79,8 @@
 				// // After form submission
 				return async ({ result, update }) => {
 					if (result.type === "success") {
+                  addSuccess.set(true)
+                  await new Promise((resolve) => setTimeout(resolve, 3000))
 						await goto("/employee");
 					}
 					if (result.type === "failure") {
@@ -120,10 +124,9 @@
 					<Input
 						color={form?.error_detail.nomor ? "red" : "base"}
 						id="nomor_karyawan"
-						type="number"
+						type="text"
 						name="nomor"
 						placeholder="Input nomor karyawan"
-						on:input={enforceNumeric}
 						required
 					/>
 					{#if form?.error_detail.nomor}
@@ -184,4 +187,5 @@
 			</div>
 		</form>
 	</Card>
+   {/if}
 </div>
