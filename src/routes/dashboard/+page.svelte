@@ -1,4 +1,10 @@
-<script>
+<script lang="ts">
+
+	import config from "$lib/config.json"
+	
+	import { onMount } from "svelte";
+	import { writable } from "svelte/store";
+
 	import {
 		Chart,
 		Card,
@@ -21,8 +27,52 @@
 		DotsHorizontalOutline,
 	} from "flowbite-svelte-icons";
 
+	const fetchData = async () => {
+		try {
+			const res = await (await fetch(config.domain + "/dashboards/employee", {mode: "cors"})).json();
+			return res.data;
+		} catch (error) {
+			return [];
+		}
+    }
+
+	type dashboard = {
+		counter: {
+			all: number
+			contract: number
+			probation: number
+		},
+		department: {
+			labels: string[]
+			values: number[]
+		}
+	}
+
+	const dashboardData = writable({
+		counter: {
+			all: 0,
+			contract: 0,
+			probation: 0
+		},
+		department: {
+			labels: [],
+			values: []
+		}
+	});
+
+	function generateRandomHexColor() {
+		return '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
+	}
+
+	$ : options.series = $dashboardData.department.values;
+	$ : options.labels = $dashboardData.department.labels;
+
+  $: options.colors = $dashboardData.department.values.map(() => generateRandomHexColor());
+
+
+
 	const options = {
-		series: [52.8, 26.8, 20.4],
+		series: $dashboardData.department.values,
 		colors: ["#1C64F2", "#16BDCA", "#9061F9"],
 		chart: {
 			height: 420,
@@ -44,7 +94,7 @@
 				},
 			},
 		},
-		labels: ["Direct", "Organic search", "Referrals"],
+		labels: $dashboardData.department.labels,
 		dataLabels: {
 			enabled: true,
 			style: {
@@ -57,15 +107,15 @@
 		},
 		yaxis: {
 			labels: {
-				formatter: function (value) {
-					return value + "%";
+				formatter: function (value: string) {
+					return value + " orang";
 				},
 			},
 		},
 		xaxis: {
 			labels: {
-				formatter: function (value) {
-					return value + "%";
+				formatter: function (value: string) {
+					return value + " orang";
 				},
 			},
 			axisTicks: {
@@ -76,6 +126,12 @@
 			},
 		},
 	};
+
+	onMount(async () => {
+		const fetch = await fetchData();
+		console.log(fetch)
+		dashboardData.set(fetch);
+	});
 </script>
 
 <div class="flex flex-wrap mb-6 mt-5 w-full">
@@ -84,7 +140,7 @@
 			class="bg-white rounded-lg h-64 p-4 shadow-xl flex flex-col justify-center items-center space-y-10"
 		>
 			<h1 class="text-4xl text-gray-400">Total Karyawan</h1>
-			<span class="text-7xl font-bold">3</span>
+			<span class="text-7xl font-bold">{ $dashboardData.counter.all }</span>
 		</div>
 	</div>
 	<div class="md:w-1/3 p-2 px-10 w-full">
@@ -92,7 +148,7 @@
 			class="bg-white rounded-lg h-64 p-4 shadow-xl flex flex-col justify-center items-center space-y-10"
 		>
 			<h1 class="text-4xl text-blue-500">Contract</h1>
-			<span class="text-7xl text-blue-500">1</span>
+			<span class="text-7xl text-blue-500">{ $dashboardData.counter.contract }</span>
 		</div>
 	</div>
 	<div class="md:w-1/3 p-2 px-10 w-full">
@@ -100,7 +156,7 @@
 			class="bg-white rounded-lg h-64 p-4 shadow-xl flex flex-col justify-center items-center space-y-10"
 		>
 			<h1 class="text-4xl text-orange-400">Probation</h1>
-			<span class="text-7xl text-orange-400">1</span>
+			<span class="text-7xl text-orange-400">{ $dashboardData.counter.probation }</span>
 		</div>
 	</div>
 
