@@ -17,6 +17,11 @@
 		if (splitOld) {
 			let maxArrayOld = splitOld?.length;
 			oldPath = splitOld[maxArrayOld - 1];
+			if (Object.hasOwn(activeLink, oldPath)) {
+				oldPath = oldPath;
+			} else {
+				oldPath = splitOld[maxArrayOld - 2];
+			}
 		}
 
 		let splitNew = $navigating.to?.url.pathname.split("/");
@@ -24,6 +29,13 @@
 		if (splitNew) {
 			let maxArrayNew = splitNew.length;
 			newPath = splitNew[maxArrayNew - 1];
+			console.log(activeLink);
+			console.log(Object.hasOwn(activeLink, newPath));
+			if (Object.hasOwn(activeLink, newPath)) {
+				newPath = newPath;
+			} else {
+				newPath = splitNew[maxArrayNew - 2];
+			}
 		}
 		if (oldPath !== newPath) {
 			//@ts-ignore

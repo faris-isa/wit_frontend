@@ -92,7 +92,7 @@
 		class="-mt-5 w-full flex justify-end items-center py-5"
 	>
 		<div class="w-1/2 flex items-start space-x-5">
-			<Button color="blue">Tambah Karyawan</Button>
+			<Button color="blue" href='/employee/create'>Tambah Karyawan</Button>
 			<Button color="blue">Imprt CSV</Button>
 		</div>
 		<div class="w-1/2 flex justify-end space-x-5 mr-4">
